@@ -97,6 +97,16 @@ export function entrarComGoogle(): void {
   });
 }
 
+// Entrada por link mágico: chega um email com um link que abre a app com sessão.
+export async function entrarPorEmail(email: string): Promise<string | null> {
+  if (!cliente) return 'A app não está ligada ao servidor.';
+  const { error } = await cliente.auth.signInWithOtp({
+    email,
+    options: { emailRedirectTo: window.location.href },
+  });
+  return error ? error.message : null;
+}
+
 export async function sair(): Promise<void> {
   if (!cliente) return;
   await cliente.auth.signOut();

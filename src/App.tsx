@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { aoGravar, pref, porPref, type EstadoGravacao } from './lib/db';
 import { pesquisarGlobal, type Resultado } from './lib/pesquisa';
 import { useNovaVersao } from './lib/versao';
-import { aoMudarSessao, aoMudarSync, entrarComGoogle, sair, sincronizar, type EstadoSync, type Sessao } from './lib/sync';
+import { aoMudarSessao, aoMudarSync, entrarPorEmail, sair, sincronizar, type EstadoSync, type Sessao } from './lib/sync';
 import Casa from './screens/Casa';
 import Privado from './screens/Privado';
 import Arquivos from './screens/Arquivos';
@@ -32,6 +32,8 @@ export default function App() {
   const [tamanho, setTamanho] = useState(18);
   const [consulta, setConsulta] = useState('');
   const [resultados, setResultados] = useState<Resultado[]>([]);
+  const [emailEntrada, setEmailEntrada] = useState<string | null>(null);
+  const [mensagemEntrada, setMensagemEntrada] = useState('');
 
   // Barra de versão nova: nunca aplica sozinha, só com clique.
   const { haNova: needRefresh, aplicar: updateServiceWorker } = useNovaVersao();
@@ -96,8 +98,27 @@ export default function App() {
             <button onClick={() => void sair()} aria-label={`Sair da conta ${sessaoAtual.email}`}>
               Sair ({sessaoAtual.nome.split('@')[0]})
             </button>
+          ) : emailEntrada === null ? (
+            <button onClick={() => setEmailEntrada('')}>Entrar</button>
           ) : (
-            <button onClick={entrarComGoogle}>Entrar com o Google</button>
+            <span className="linha cresce">
+              <input
+                value={emailEntrada}
+                onChange={(e) => setEmailEntrada(e.target.value)}
+                placeholder="o teu email"
+                aria-label="Email para entrar"
+                style={{ minHeight: 48 }}
+              />
+              <button
+                onClick={async () => {
+                  const erro = await entrarPorEmail(emailEntrada.trim());
+                  setMensagemEntrada(erro ?? 'Enviámos um link para o teu email. Abre-o e ficas dentro.');
+                  if (!erro) setEmailEntrada(null);
+                }}
+              >
+                Enviar link
+              </button>
+            </span>
           )}
         </div>
         <nav aria-label="Secções">
@@ -131,7 +152,7 @@ export default function App() {
           </div>
         )}
         <p className="estado">
-          {sessaoAtual ? NOMES_SYNC[sync] : NOMES_SYNC['sem-conta']}
+          {sessaoAtual ? NOMES_SYNC[sync] : mensagemEntrada ? `${mensagemEntrada}` : NOMES_SYNC['sem-conta'] + ' · podes entrar no botão “Entrar”'}
         </p>
       </header>
 
