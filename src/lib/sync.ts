@@ -144,6 +144,7 @@ async function enviar(): Promise<void> {
       const { error } = await c.from('itens').insert({
         id: itemLocal.id,
         area: itemLocal.area,
+        dono: sessaoAtual!.userId,
         criado_em: itemLocal.criadoEm,
         apagado_em: itemLocal.apagadoEm,
       });
@@ -156,7 +157,7 @@ async function enviar(): Promise<void> {
       id: novoId(),
       item_id: linha.itemId,
       autor: sessaoAtual!.userId,
-      dados: linha.update,
+      dados: bytesParaHex(linha.update),
       criado_em: linha.criadoEm,
     });
     if (error) {
@@ -209,7 +210,7 @@ async function receber(): Promise<void> {
   const porItem = new Map<string, Uint8Array[]>();
   for (const l of linhas ?? []) {
     const lista = porItem.get(l.item_id) ?? [];
-    lista.push(new Uint8Array(l.dados as ArrayBuffer));
+    lista.push(hexParaBytes(l.dados as string));
     porItem.set(l.item_id, lista);
   }
 
@@ -239,4 +240,18 @@ function bytesIguais(a: Uint8Array, b: Uint8Array): boolean {
   if (a.length !== b.length) return false;
   for (let i = 0; i < a.length; i++) if (a[i] !== b[i]) return false;
   return true;
+}
+
+// bytea do Postgres fala hex ("\\x0a1b…") com o PostgREST.
+function bytesParaHex(bytes: Uint8Array): string {
+  let s = '\\x';
+  for (const b of bytes) s += b.toString(16).padStart(2, '0');
+  return s;
+}
+
+function hexParaBytes(hex: string): Uint8Array {
+  const limpo = hex.startsWith('\\x') ? hex.slice(2) : hex;
+  const saida = new Uint8Array(limpo.length / 2);
+  for (let i = 0; i < saida.length; i++) saida[i] = parseInt(limpo.slice(i * 2, i * 2 + 2), 16);
+  return saida;
 }
