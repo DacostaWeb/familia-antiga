@@ -4,6 +4,7 @@ import { criarItem, apagarItem, carregarDoc, db } from '../lib/db';
 import { usarItens, mapDe, type ItemLinha } from '../lib/tarefa';
 import { agruparTarefas, type ComPrazo } from '../lib/dates';
 import { lerCamposTarefa } from '../lib/types';
+import { aoMudarSync } from '../lib/sync';
 import Cartao from '../components/Cartao';
 import { PostItCartao } from '../components/PostIt';
 import { IconeMais } from '../icons';
@@ -58,6 +59,14 @@ export default function Casa({ abrirArquivos, abrirNotaArquivo }: Props) {
   useEffect(() => {
     void carregarPostits();
   }, []);
+
+  // Novas tarefas chegam pela sincronização: recarregar quando ela termina.
+  useEffect(() => aoMudarSync((s) => {
+    if (s === 'sincronizado') {
+      recarregar();
+      void carregarPostits();
+    }
+  }), [recarregar]);
 
   const grupos = agruparTarefas(
     tarefas.map(paraComPrazo),

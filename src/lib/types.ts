@@ -63,6 +63,7 @@ export type Item = {
   area: Area;
   criadoEm: string;
   apagadoEm: string | null;
+  remoto?: boolean; // chegou pela sincronização; o dono pode não ser este utilizador
 };
 
 export function camposTarefaIniciais(): CamposTarefa {

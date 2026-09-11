@@ -1,6 +1,10 @@
+import type { EstadoSync, Sessao } from '../lib/sync';
+
 type Props = {
   tamanhoTexto: number;
   mudarTamanhoTexto: (px: number) => void;
+  sessao: Sessao;
+  sync: EstadoSync;
 };
 
 const TAMANHOS = [
@@ -9,7 +13,14 @@ const TAMANHOS = [
   { px: 24, nome: 'Muito grande' },
 ];
 
-export default function Definicoes({ tamanhoTexto, mudarTamanhoTexto }: Props) {
+const NOMES_SYNC: Record<EstadoSync, string> = {
+  'sem-conta': 'Sem conta: tudo fica só neste aparelho.',
+  'a-sincronizar': 'A sincronizar com o servidor…',
+  sincronizado: 'Sincronizado com o servidor.',
+  erro: 'Não consegui sincronizar agora. Fica guardado no dispositivo e tenta-se outra vez sozinho.',
+};
+
+export default function Definicoes({ tamanhoTexto, mudarTamanhoTexto, sessao, sync }: Props) {
   async function pedirArmazenamento() {
     const persistente = await navigator.storage?.persist?.();
     const estimativa = await navigator.storage?.estimate?.();
@@ -44,8 +55,17 @@ export default function Definicoes({ tamanhoTexto, mudarTamanhoTexto }: Props) {
 
       <h2>Contas</h2>
       <div className="caixa">
-        <p>Hoje a app funciona sem conta, guardando tudo neste aparelho.</p>
-        <p>A entrada com o Google ({'atelierdacostafinanceiro@gmail.com'} aprova a família) chega com o servidor, na fase seguinte do plano.</p>
+        {sessao ? (
+          <>
+            <p>
+              Entraste como <strong>{sessao.email}</strong>
+              {sessao.aprovado ? '' : ' — à espera de aprovação por atelierdacostafinanceiro@gmail.com. Enquanto isso, tudo fica guardado neste aparelho.'}
+            </p>
+            <p className="notafb">{NOMES_SYNC[sync]}</p>
+          </>
+        ) : (
+          <p>Sem conta: tudo fica guardado só neste aparelho. Entra com o Google (botão no topo) para a família ver as tarefas da casa e partilhar notas.</p>
+        )}
       </div>
 
       <h2>Cópia na Drive</h2>

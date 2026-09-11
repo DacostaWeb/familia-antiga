@@ -3,6 +3,7 @@ import * as Y from 'yjs';
 import { criarItem, apagarItem, restaurarItem, carregarDoc, db } from '../lib/db';
 import { usarItens, mapDe, type ItemLinha } from '../lib/tarefa';
 import { lerCamposArquivo, type CamposArquivo } from '../lib/types';
+import { aoMudarSync } from '../lib/sync';
 import Editor from '../components/Editor';
 import { IconeMais, IconeVoltar } from '../icons';
 
@@ -35,6 +36,11 @@ export default function Arquivos({ pastaId, notaId, abrirPasta, abrirNota, fecha
     return vivas;
   });
   const [caixote, setCaixote] = useState(false);
+
+  // Novos arquivos partilhados chegam pela sincronização.
+  useEffect(() => aoMudarSync((s) => {
+    if (s === 'sincronizado') recarregar();
+  }), [recarregar]);
 
   const caminho: Entrada[] = [];
   let cursor = pastaId;

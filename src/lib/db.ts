@@ -108,6 +108,10 @@ function avisarGravacao(): void {
   for (const o of ouvintes) o(estado);
 }
 
+export function notificarGravacao(): void {
+  avisarGravacao();
+}
+
 export async function pref<T>(chave: string, porOmissao: T): Promise<T> {
   const linha = await db.prefs.get(chave);
   return linha ? (linha.valor as T) : porOmissao;

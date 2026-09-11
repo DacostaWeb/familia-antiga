@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import * as Y from 'yjs';
 import { criarItem, apagarItem, carregarDoc } from '../lib/db';
 import { usarItens, mapDe, type ItemLinha } from '../lib/tarefa';
+import { aoMudarSync } from '../lib/sync';
 import Editor from '../components/Editor';
 import { IconeMais, IconeVoltar } from '../icons';
 
@@ -26,6 +27,11 @@ export default function Privado({ notaId, abrirNota, fecharNota }: Props) {
   const [aImportar, setAImportar] = useState(false);
 
   const [importes, setImportes] = useState<Record<string, string>>({});
+
+  // Notas partilhadas por outros chegam pela sincronização.
+  useEffect(() => aoMudarSync((s) => {
+    if (s === 'sincronizado') recarregar();
+  }), [recarregar]);
 
   if (notaId) {
     const nota = notas.find((n) => n.id === notaId);

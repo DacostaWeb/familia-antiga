@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { aoGravar, pref, porPref, type EstadoGravacao } from './lib/db';
 import { pesquisarGlobal, type Resultado } from './lib/pesquisa';
 import { useNovaVersao } from './lib/versao';
+import { aoMudarSessao, aoMudarSync, entrarComGoogle, sair, sincronizar, type EstadoSync, type Sessao } from './lib/sync';
 import Casa from './screens/Casa';
 import Privado from './screens/Privado';
 import Arquivos from './screens/Arquivos';
@@ -16,16 +17,18 @@ export type Navegacao = {
   notaId: string | null; // nota aberta (Privado ou Arquivos)
 };
 
-const TEXTOS_ESTADO: Record<EstadoGravacao, string> = {
-  gravado: 'Guardado neste dispositivo',
-  'a-sincronizar': 'A sincronizar',
+const NOMES_SYNC: Record<EstadoSync, string> = {
+  'sem-conta': 'Guardado neste dispositivo',
+  'a-sincronizar': 'A sincronizar…',
   sincronizado: 'Sincronizado',
-  erro: 'Erro ao sincronizar (guardado neste dispositivo)',
+  erro: 'Erro ao sincronizar (tudo guardado no dispositivo)',
 };
 
 export default function App() {
   const [nav, setNav] = useState<Navegacao>({ ecra: 'casa', pastaId: null, notaId: null });
   const [gravacao, setGravacao] = useState<EstadoGravacao>('gravado');
+  const [sync, setSync] = useState<EstadoSync>('sem-conta');
+  const [sessaoAtual, setSessaoAtual] = useState<Sessao>(null);
   const [tamanho, setTamanho] = useState(18);
   const [consulta, setConsulta] = useState('');
   const [resultados, setResultados] = useState<Resultado[]>([]);
@@ -34,6 +37,20 @@ export default function App() {
   const { haNova: needRefresh, aplicar: updateServiceWorker } = useNovaVersao();
 
   useEffect(() => aoGravar(setGravacao), []);
+  useEffect(() => aoMudarSync(setSync), []);
+  useEffect(() => aoMudarSessao(setSessaoAtual), []);
+
+  // Arrancar a sincronização (se o Supabase estiver configurado).
+  useEffect(() => {
+    void import('./lib/sync').then((m) => m.iniciarSync());
+  }, []);
+
+  // Depois de cada gravação local, sincronizar com um pequeno atraso.
+  useEffect(() => {
+    if (gravacao !== 'a-sincronizar') return;
+    const t = setTimeout(() => void sincronizar(), 1200);
+    return () => clearTimeout(t);
+  }, [gravacao]);
 
   useEffect(() => {
     void pref<number>('tamanho-texto', 18).then(setTamanho);
@@ -73,7 +90,16 @@ export default function App() {
   return (
     <>
       <header className="cabecalho">
-        <h1>Casadacosta</h1>
+        <div className="linha">
+          <h1 className="cresce">Casadacosta</h1>
+          {sessaoAtual ? (
+            <button onClick={() => void sair()} aria-label={`Sair da conta ${sessaoAtual.email}`}>
+              Sair ({sessaoAtual.nome.split('@')[0]})
+            </button>
+          ) : (
+            <button onClick={entrarComGoogle}>Entrar com o Google</button>
+          )}
+        </div>
         <nav aria-label="Secções">
           <button onClick={() => ir('casa')} aria-current={nav.ecra === 'casa' ? 'page' : undefined}>
             <IconeCasa tamanho={18} /> Tarefas da Casa
@@ -104,7 +130,9 @@ export default function App() {
             ))}
           </div>
         )}
-        <p className="estado">{TEXTOS_ESTADO[gravacao]}</p>
+        <p className="estado">
+          {sessaoAtual ? NOMES_SYNC[sync] : NOMES_SYNC['sem-conta']}
+        </p>
       </header>
 
       <main>
@@ -133,7 +161,7 @@ export default function App() {
             fecharNota={() => setNav({ ecra: 'arquivos', pastaId: nav.pastaId, notaId: null })}
           />
         )}
-        {nav.ecra === 'definicoes' && <Definicoes tamanhoTexto={tamanho} mudarTamanhoTexto={mudarTamanho} />}
+        {nav.ecra === 'definicoes' && <Definicoes tamanhoTexto={tamanho} mudarTamanhoTexto={mudarTamanho} sessao={sessaoAtual} sync={sync} />}
       </main>
     </>
   );
