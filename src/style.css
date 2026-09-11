@@ -1,0 +1,312 @@
+/* Casadacosta — três cores: branco #FFFFFF, preto #000000, amarelo #FFEB3B (só post-its).
+   Sem cinzentos, sem sombras, sem gradientes, sem transparências, sem animações. */
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  font-size: var(--tamanho-texto, 18px);
+}
+
+body {
+  margin: 0;
+  background: #ffffff;
+  color: #000000;
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-weight: 400;
+  line-height: 1.45;
+}
+
+#root {
+  max-width: 42rem;
+  margin: 0 auto;
+  padding: 0 0.75rem 3rem 0.75rem;
+}
+
+h1,
+h2,
+h3 {
+  font-weight: 700;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+}
+
+h1 {
+  font-size: 1.5rem;
+}
+
+h2 {
+  font-size: 1.2rem;
+}
+
+a {
+  color: #000000;
+  text-decoration: underline;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  background: #ffffff;
+  border: 2px solid #000000;
+  border-radius: 0;
+  padding: 0.55rem 0.9rem;
+  min-height: 48px;
+  font-weight: 700;
+  cursor: pointer;
+  overflow-wrap: anywhere;
+}
+
+button:active {
+  background: #ffeb3b;
+}
+
+button:disabled {
+  opacity: 1;
+  color: #000000;
+  cursor: default;
+}
+
+input,
+select,
+textarea {
+  background: #ffffff;
+  border: 2px solid #000000;
+  border-radius: 0;
+  padding: 0.5rem 0.6rem;
+  min-height: 48px;
+  max-width: 100%;
+}
+
+::placeholder {
+  color: #000000;
+  opacity: 1;
+}
+
+input[type='checkbox'] {
+  min-height: 0;
+  width: 1.6rem;
+  height: 1.6rem;
+  accent-color: #000000;
+  padding: 0;
+}
+
+.caixa {
+  border: 2px solid #000000;
+  padding: 0.75rem;
+  margin: 0.75rem 0;
+  overflow-wrap: anywhere;
+}
+
+.linha {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.linha > * {
+  flex-shrink: 0;
+}
+
+.cresce {
+  flex: 1 1 10rem;
+  min-width: 0;
+}
+
+/* Cabeçalho com as três entradas sempre visíveis */
+.cabecalho {
+  border: 2px solid #000000;
+  border-top-width: 0;
+  margin: 0 -0.75rem;
+  padding: 0.5rem 0.75rem;
+}
+
+.cabecalho nav {
+  display: flex;
+  border: 2px solid #000000;
+}
+
+.cabecalho nav button {
+  flex: 1 1 0;
+  min-width: 0;
+  border: none;
+  border-right: 2px solid #000000;
+  padding: 0.6rem 0.2rem;
+  font-size: 0.95rem;
+}
+
+.cabecalho nav button:last-child {
+  border-right: none;
+}
+
+.cabecalho nav button[aria-current='page'] {
+  background: #000000;
+  color: #ffffff;
+}
+
+@media (max-width: 380px) {
+  .cabecalho nav button {
+    font-size: 0.75rem;
+    overflow-wrap: normal;
+  }
+}
+
+/* Cartão de tarefa */
+.cartao {
+  border: 2px solid #000000;
+  padding: 0.6rem 0.75rem;
+  margin: 0.5rem 0;
+  overflow-wrap: anywhere;
+}
+
+.cartao-topo {
+  display: flex;
+  gap: 0.6rem;
+  align-items: flex-start;
+}
+
+.cartao-topo input[type='checkbox'] {
+  flex-shrink: 0;
+  width: 2.4rem;
+  height: 2.4rem;
+  margin-top: 0.1rem;
+}
+
+.cartao-titulo {
+  font-weight: 700;
+  font-size: 1.05rem;
+}
+
+.concluida .cartao-titulo {
+  text-decoration: line-through;
+}
+
+.quando {
+  font-family: 'Azeret Mono', monospace;
+  font-size: 0.85rem;
+}
+
+/* Post-it: o único sítio com amarelo */
+.postit {
+  background: #ffeb3b;
+  border: 2px solid #000000;
+  padding: 0.6rem 0.75rem;
+  margin: 0.5rem 0;
+  overflow-wrap: anywhere;
+}
+
+.grupo-titulo {
+  margin-top: 1.2rem;
+  border-bottom: 2px solid #000000;
+  padding-bottom: 0.15rem;
+}
+
+/* Editor de notas */
+.editor-nota .ProseMirror {
+  border: 2px solid #000000;
+  padding: 0.75rem;
+  min-height: 12rem;
+  font-family: 'Literata', serif;
+  outline: none;
+  overflow-wrap: anywhere;
+}
+
+.editor-nota .ProseMirror ul[data-type='taskList'] {
+  list-style: none;
+  padding-left: 0;
+}
+
+.editor-nota .ProseMirror ul[data-type='taskList'] li {
+  display: flex;
+  gap: 0.5rem;
+  align-items: flex-start;
+}
+
+.editor-nota .ProseMirror ul[data-type='taskList'] li > label {
+  margin-top: 0.25rem;
+}
+
+.editor-barra {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  margin-bottom: 0.5rem;
+}
+
+.editor-barra button {
+  min-height: 48px;
+  padding: 0.4rem 0.6rem;
+  font-size: 0.9rem;
+}
+
+.editor-barra button.ativo {
+  background: #000000;
+  color: #ffffff;
+}
+
+/* Lista de ficheiros */
+.arquivo-linha {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  border: 2px solid #000000;
+  padding: 0.4rem 0.6rem;
+  margin: 0.4rem 0;
+  overflow-wrap: anywhere;
+}
+
+.arquivo-linha .cresce {
+  flex-shrink: 1;
+}
+
+.arquivo-linha button {
+  min-height: 48px;
+  padding: 0.35rem 0.6rem;
+  font-size: 0.85rem;
+}
+
+/* Barra de versão nova */
+.barra-nova {
+  border: 2px solid #000000;
+  padding: 0.6rem 0.75rem;
+  margin: 0.5rem 0;
+}
+
+/* Estado de gravação */
+.estado {
+  font-family: 'Azeret Mono', monospace;
+  font-size: 0.8rem;
+  padding: 0.1rem 0;
+}
+
+.rotulo {
+  font-weight: 700;
+}
+
+.mono {
+  font-family: 'Azeret Mono', monospace;
+}
+
+.notafb {
+  color: #000000;
+  font-size: 0.9rem;
+}
+
+hr {
+  border: none;
+  border-top: 2px solid #000000;
+  margin: 1rem 0;
+}
+
+code {
+  font-family: 'Azeret Mono', monospace;
+  overflow-wrap: anywhere;
+}
