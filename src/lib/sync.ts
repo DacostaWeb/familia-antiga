@@ -122,6 +122,7 @@ export async function sincronizar(): Promise<void> {
     porEstado('a-sincronizar');
     await enviar();
     await receber();
+    await import('./push').then((m) => m.sincronizarLembretes());
     porEstado('sincronizado');
   } catch {
     porEstado('erro');

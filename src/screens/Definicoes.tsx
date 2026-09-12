@@ -1,4 +1,6 @@
+import { useState } from 'react';
 import type { EstadoSync, Sessao } from '../lib/sync';
+import { ativarPush, pushSuportado } from '../lib/push';
 
 type Props = {
   tamanhoTexto: number;
@@ -21,6 +23,12 @@ const NOMES_SYNC: Record<EstadoSync, string> = {
 };
 
 export default function Definicoes({ tamanhoTexto, mudarTamanhoTexto, sessao, sync }: Props) {
+  const [mensagemPush, setMensagemPush] = useState('');
+
+  async function ligarPush() {
+    setMensagemPush((await ativarPush()) ?? 'Notificações ligadas neste aparelho.');
+  }
+
   async function pedirArmazenamento() {
     const persistente = await navigator.storage?.persist?.();
     const estimativa = await navigator.storage?.estimate?.();
@@ -41,6 +49,20 @@ export default function Definicoes({ tamanhoTexto, mudarTamanhoTexto, sessao, sy
             {t.nome}
           </button>
         ))}
+      </div>
+
+      <h2>Notificações</h2>
+      <div className="caixa">
+        <p>Os lembretes só existem quando a tarefa tem “Lembrar à hora marcada” ligado e uma hora marcada. Sem hora, não há alarme.</p>
+        {pushSuportado() ? (
+          <>
+            <button onClick={() => void ligarPush()}>Ligar notificações neste aparelho</button>
+            {mensagemPush && <p className="notafb">{mensagemPush}</p>}
+          </>
+        ) : (
+          <p className="notafb">Este navegador não suporta notificações.</p>
+        )}
+        <p className="notafb">No iPhone é preciso a app adicionada ao ecrã principal (Safari → Partilhar → Adicionar ao ecrã principal).</p>
       </div>
 
       <h2>Guardar neste aparelho</h2>
